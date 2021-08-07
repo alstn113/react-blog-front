@@ -1,3 +1,4 @@
+import { call, put } from "redux-saga/effects";
 import { startLoading, finishLoading } from "../modules/loading";
 
 export const createRequestActionTypes = (type) => {
@@ -6,27 +7,26 @@ export const createRequestActionTypes = (type) => {
   return [type, SUCCESS, FAILURE];
 };
 
-export default function createRequestThunk(type, request) {
+export default function createRequestSaga(type, request) {
   const SUCCESS = `${type}_SUCCESS`;
   const FAILURE = `${type}_FAILURE`;
-  return (params) => async (dispatch) => {
-    dispatch({ type });
-    dispatch(startLoading(type));
+
+  return function* (action) {
+    yield put(startLoading(type));
     try {
-      const response = await request(params);
-      dispatch({
+      const response = yield call(request, action.payload);
+      yield put({
         type: SUCCESS,
         payload: response.data,
       });
-      dispatch(finishLoading(type));
-    } catch (e) {
-      dispatch({
+    } catch (error) {
+      yield put({
         type: FAILURE,
-        payload: e,
+        payload: error,
         error: true,
       });
-      dispatch(startLoading(type));
-      throw e;
+      yield put(finishLoading(type));
+      throw error;
     }
   };
 }
