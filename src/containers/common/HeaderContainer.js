@@ -1,16 +1,15 @@
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Header from "../../components/common/Header";
-import { connect } from "react-redux";
 import { logout } from "../../modules/user";
 
-const HeaderContainer = ({ user, logout }) => {
-  return <Header user={user} onLogout={logout} />;
+const HeaderContainer = () => {
+  const { user } = useSelector(({ user }) => ({ user: user.user }));
+  const dispatch = useDispatch();
+  const onLogout = () => {
+    dispatch(logout());
+  };
+  return <Header user={user} onLogout={onLogout} />;
 };
 
-export default connect(
-  ({ user }) => ({
-    user: user.user,
-  }),
-  {
-    logout,
-  }
-)(HeaderContainer);
+export default HeaderContainer;
